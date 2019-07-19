@@ -9,6 +9,6 @@
   "dependencies": {
     "connect": "^3.6.6",
     "serve-static": "^1.13.2",
-    "@azure/cosmos": "^3.0.3",
+    "@azure/cosmos": "^3.0.3"
   }
 }
