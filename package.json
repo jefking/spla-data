@@ -1,0 +1,12 @@
+{
+  "name": "static-site",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^3.0.3",
+  }
+}
