@@ -6,6 +6,7 @@
         <!-- bluebird only needed if this page needs to run on Internet Explorer -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js" class="pre"></script>
         <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" class="pre"></script>
     <body>
         yay. HTML THINGS
         <a href="https://dmrelease.blob.core.windows.net/azurestoragejssample/samples/sample-table.html">Table Sample</a>
@@ -22,7 +23,7 @@
 
         // The current application coordinates were pre-registered in a B2C tenant.
         var appConfig = {
-          b2cScopes: ["https://happyb2c.b2clogin.com/api/writer"],
+          b2cScopes: ["https://happyb2c.b2clogin.com/helloapi/demo.read"],
           webApi: "https://splahoster.azurewebsites.net/index.htm"
         };
       </script>
