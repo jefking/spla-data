@@ -2,14 +2,122 @@
     <head>
 
     </head>
+    
+        <!-- bluebird only needed if this page needs to run on Internet Explorer -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js" class="pre"></script>
+        <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.min.js"></script>
     <body>
         yay. HTML THINGS
         <a href="https://dmrelease.blob.core.windows.net/azurestoragejssample/samples/sample-table.html">Table Sample</a>
-    </body>
-    <!-- Storage-->
-    <script type=”javascript/text” src=”azure-storage.common.js”></script>
-    <script type=”javascript/text” src="azure-storage.table.js"></script>
+        
+        
+      <script class="pre">
 
-    <!-- VUE.js -->
-    <script type=”javascript/text” src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        // The current application coordinates were pre-registered in a B2C tenant.
+        var appConfig = {
+          b2cScopes: [""],
+          webApi: "https://splahoster.azurewebsites.net/index.htm"
+        };
+      </script>
+    </body>
+<script>
+    "use strict";
+
+    // configuration to initialize msal
+    var msalConfig = {
+        auth: {
+            clientId: "7a54d32c-e0fc-44a7-8d5a-6fb851db6f78", //This is your client ID
+            authority: "<HALP!!>", //This is your tenant info
+            validateAuthority: false
+        },
+        cache: {
+            cacheLocation: "localStorage",
+            storeAuthStateInCookie: true
+        }
+    };
+
+    var clientApplication = new Msal.UserAgentApplication(msalConfig);
+
+    // Register a call back for redirect flow
+    // myMSALObj.handleRedirectCallback(authRedirectCallback);
+
+    function login() {
+
+      var loginRequest = {
+        scopes: appConfig.b2cScopes
+      };
+
+      clientApplication.loginPopup(loginRequest).then(function (loginResponse) {
+        var tokenRequest = {
+          scopes: appConfig.b2cScopes
+        };
+
+        clientApplication.acquireTokenSilent(tokenRequest).then(function (tokenResponse) {
+          updateUI();
+        }).catch(function (error) {
+          clientApplication.acquireTokenPopup(tokenRequest).then(function (tokenResponse) {
+            updateUI();
+          }).catch (function (error) {
+            logMessage("Error acquiring the popup:\n" + error);
+          });
+        })
+      }).catch (function (error) {
+        logMessage("Error during login:\n" + error);
+      });
+    }
+
+    function updateUI() {
+      var userName = clientApplication.getAccount().name;
+      console.log(clientApplication.getAccount());
+      logMessage("User '" + userName + "' logged-in");
+      var authButton = document.getElementById('auth');
+      authButton.innerHTML = 'logout';
+      authButton.setAttribute('onclick', 'logout();');
+      var label = document.getElementById('label');
+      label.innerText = "Hello " + userName;
+      var callWebApiButton = document.getElementById('callApiButton');
+      callWebApiButton.setAttribute('class', 'visible');
+    }
+
+    function callApi() {
+      var tokenRequest = {
+        scopes: appConfig.b2cScopes
+      }
+      clientApplication.acquireTokenSilent(tokenRequest).then(function (tokenResponse) {
+        callApiWithAccessToken(tokenResponse.accessToken);
+      }).catch(function (error) {
+        clientApplication.acquireTokenPopup(tokenRequest).then(function (tokenResponse) {
+          callApiWithAccessToken(tokenResponse.accessToken);
+        }).catch(function (error) {
+          logMessage("Error acquiring the access token to call the Web api:\n" + error);
+        });
+      })
+    }
+
+    function callApiWithAccessToken(accessToken) {
+      // Call the Web API with the AccessToken
+      $.ajax({
+        type: "GET",
+        url: appConfig.webApi,
+        headers: {
+          'Authorization': 'Bearer ' + accessToken,
+        },
+      }).done(function (data) {
+        logMessage("Web APi returned:\n" + JSON.stringify(data));
+      })
+        .fail(function (jqXHR, textStatus) {
+          logMessage("Error calling the Web api:\n" + textStatus);
+        })
+    }
+
+    function logout() {
+      // Removes all sessions, need to call AAD endpoint to do full logout
+      clientApplication.logout();
+    }
+
+    function logMessage(s) {
+      document.body.querySelector('.response').appendChild(document.createTextNode('\n' + s));
+    }
+
+  </script>
 </html>
